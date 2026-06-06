@@ -73,7 +73,7 @@ body.exam-secure select {
   background-repeat: repeat;
   background-size: 420px 190px;
 }
-body.exam-secure .watermark-layer { display: block; }
+body.exam-secure .watermark-layer { display: none !important; }
 .security-toast {
   position: fixed;
   right: 18px;
@@ -200,6 +200,15 @@ h1, h2, h3 {
   font-weight: 700;
 }
 
+
+/* NO WATERMARK - keep other safety features */
+.watermark-layer,
+body.exam-secure .watermark-layer {
+  display: none !important;
+  opacity: 0 !important;
+  background-image: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -210,7 +219,6 @@ h1, h2, h3 {
     <p>Web đã che câu hỏi vì cửa sổ bị mất focus hoặc bạn chuyển tab/app. Quay lại cửa sổ bài thi để tiếp tục.</p>
   </div>
 </div>
-<div id="watermarkLayer" class="watermark-layer"></div>
 <div id="securityToast" class="security-toast"></div>
 
 <div class="top"><div class="topin"><div class="brand"><span class="brand-logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path d="M91.8 26.5c-8.7-2.7-18.6-.6-25.5 6.3-7.1 7.1-9.1 17.5-6 26.4L28.6 90.9c-3.5 3.5-3.5 9.2 0 12.7s9.2 3.5 12.7 0L73 71.9c8.9 3.1 19.3 1.1 26.4-6 6.9-6.9 9-16.8 6.3-25.5L90.1 56l-15.5-2.8-2.8-15.5 20-11.2z" fill="white"/><path d="M42 34l14 8 8 14-12-6-7 7 6 12-14-8-8-14 12 6 7-7-6-12z" fill="#dbeafe"/></svg></span><div><h1>BASIC CAT/A SAMPLE TEST</h1><p>Đây không phải đề thi thật, chỉ dùng để kiểm tra kiến thức và thử giống với fomat thi thật !!</p></div></div><div class="credit" id="creditBadge">Lượt còn lại: 0</div></div></div>
@@ -577,11 +585,7 @@ let suspiciousCount = 0;
 const BLOCKED_CTRL_KEYS = ["c", "a", "s", "p", "u"];
 const BLOCKED_CTRL_SHIFT_KEYS = ["i", "j", "c"];
 
-function securityUserLabel() {
-  const email = currentUser?.email || "guest";
-  const time = new Date().toLocaleString("vi-VN");
-  return `${email} • ${time} • BASIC CAT/A SAMPLE TEST`;
-}
+function securityUserLabel(){ return "BASIC CAT/A SAMPLE TEST"; }
 
 function setExamSecureMode(enabled) {
   securityEnabled = enabled;
@@ -589,18 +593,7 @@ function setExamSecureMode(enabled) {
   updateWatermark();
 }
 
-function updateWatermark() {
-  const layer = document.getElementById("watermarkLayer");
-  if (!layer) return;
-  const text = securityUserLabel();
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="420" height="190">
-      <text x="20" y="55" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a" transform="rotate(-22 20 55)">${escapeSvg(text)}</text>
-      <text x="90" y="145" font-family="Arial" font-size="18" font-weight="700" fill="#0f172a" transform="rotate(-22 90 145)">${escapeSvg(text)}</text>
-    </svg>
-  `;
-  layer.style.backgroundImage = `url("data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}")`;
-}
+function updateWatermark(){ return; }
 
 function escapeSvg(text) {
   return String(text)
