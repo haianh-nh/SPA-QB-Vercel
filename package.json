@@ -1,0 +1,13 @@
+{
+  "name": "ata-quiz-bank-v6-vercel",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@payos/node": "^1.0.0",
+    "@supabase/supabase-js": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
