@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BASIC CAT/A SAMPLE TEST</title>
-<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="14" fill="%232563eb"/%3E%3Cpath fill="white" d="M44.7 8.7c-4.4-1.3-9.4-.2-12.9 3.3-3.9 3.9-4.8 9.7-2.8 14.5L12.2 43.3c-2.7 2.7-2.7 7.1 0 9.8s7.1 2.7 9.8 0l16.8-16.8c4.8 2 10.6 1.1 14.5-2.8 3.5-3.5 4.6-8.5 3.3-12.9l-8.8 8.8-7.2-1.9-1.9-7.2 8.8-8.8zM17.2 49.8a2.9 2.9 0 1 1 0-5.8 2.9 2.9 0 0 1 0 5.8z"/%3E%3C/svg%3E'>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij4KPHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIHJ4PSIyNiIgZmlsbD0iIzI1NjNlYiIvPgo8cGF0aCBkPSJNOTEuOCAyNi41Yy04LjctMi43LTE4LjYtLjYtMjUuNSA2LjMtNy4xIDcuMS05LjEgMTcuNS02IDI2LjRMMjguNiA5MC45Yy0zLjUgMy41LTMuNSA5LjIgMCAxMi43czkuMiAzLjUgMTIuNyAwTDczIDcxLjljOC45IDMuMSAxOS4zIDEuMSAyNi40LTYgNi45LTYuOSA5LTE2LjggNi4zLTI1LjVMOTAuMSA1NmwtMTUuNS0yLjgtMi44LTE1LjUgMjAtMTEuMnoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik00MiAzNGwxNCA4IDggMTQtMTItNi03IDcgNiAxMi0xNC04LTgtMTQgMTIgNiA3LTctNi0xMnoiIGZpbGw9IiNkYmVhZmUiLz4KPC9zdmc+">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#f3f6fb;--card:#fff;--text:#172033;--muted:#64748b;--primary:#2563eb;--green:#16a34a;--red:#dc2626;--border:#dbe3ef;--shadow:0 18px 55px rgba(15,23,42,.10)}
@@ -142,6 +142,64 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 
+
+/* LOGO FIX */
+.brand-logo, .logo, .site-logo {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #2563eb, #38bdf8) !important;
+  box-shadow: 0 10px 22px rgba(37,99,235,.25) !important;
+  overflow: hidden !important;
+}
+.brand-logo svg, .logo svg, .site-logo svg {
+  width: 30px !important;
+  height: 30px !important;
+  display: block !important;
+}
+
+
+/* SUSPECT / MARK FOR REVIEW FIX */
+.review-btn {
+  border: 1px solid rgba(245,158,11,.35) !important;
+  background: #fff7ed !important;
+  color: #92400e !important;
+  padding: 7px 10px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  margin-left: auto !important;
+}
+.review-btn.active {
+  background: #f59e0b !important;
+  color: #111827 !important;
+  border-color: #f59e0b !important;
+}
+.question.suspect {
+  border-color: rgba(245,158,11,.65) !important;
+  box-shadow: 0 0 0 2px rgba(245,158,11,.14) !important;
+}
+.dot.suspect {
+  background: #f59e0b !important;
+  color: #111827 !important;
+  border-color: #d97706 !important;
+}
+.dot.answered.suspect {
+  background: linear-gradient(135deg,#2563eb 0 50%,#f59e0b 50% 100%) !important;
+  color: #fff !important;
+}
+.review-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #92400e;
+  font-weight: 700;
+}
+
 </style>
 </head>
 <body>
@@ -155,7 +213,7 @@ h1, h2, h3 {
 <div id="watermarkLayer" class="watermark-layer"></div>
 <div id="securityToast" class="security-toast"></div>
 
-<div class="top"><div class="topin"><div class="brand"><div class="logo"><svg viewBox="0 0 24 24"><path d="M21 16.5v-2l-8-5V4.5a1.5 1.5 0 0 0-3 0V9.5l-8 5v2l8-2.5v4.5l-2 1.5v1.5l3.5-1 3.5 1V19l-2-1.5V13l8 3.5z"/></svg></div><div><h1>BASIC CAT/A SAMPLE TEST</h1><p>Đây không phải đề thi thật, chỉ dùng để kiểm tra kiến thức và thử giống với fomat thi thật !!</p></div></div><div class="credit" id="creditBadge">Lượt còn lại: 0</div></div></div>
+<div class="top"><div class="topin"><div class="brand"><span class="brand-logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><path d="M91.8 26.5c-8.7-2.7-18.6-.6-25.5 6.3-7.1 7.1-9.1 17.5-6 26.4L28.6 90.9c-3.5 3.5-3.5 9.2 0 12.7s9.2 3.5 12.7 0L73 71.9c8.9 3.1 19.3 1.1 26.4-6 6.9-6.9 9-16.8 6.3-25.5L90.1 56l-15.5-2.8-2.8-15.5 20-11.2z" fill="white"/><path d="M42 34l14 8 8 14-12-6-7 7 6 12-14-8-8-14 12 6 7-7-6-12z" fill="#dbeafe"/></svg></span><div><h1>BASIC CAT/A SAMPLE TEST</h1><p>Đây không phải đề thi thật, chỉ dùng để kiểm tra kiến thức và thử giống với fomat thi thật !!</p></div></div><div class="credit" id="creditBadge">Lượt còn lại: 0</div></div></div>
 
 <div class="layout">
 <aside class="card">
@@ -468,15 +526,24 @@ async function startQuiz(){if(!requireLogin())return;let pool,count,catInfo;if(g
 const moduleLabel=getModuleLabel(selectedModule);const {data,error}=await supabaseClient.rpc("start_attempt",{p_module:moduleLabel,p_category:catInfo,p_total_questions:count});
 if(error){if(error.message.includes("NOT_ENOUGH_CREDITS"))return status("Bạn đã hết lượt làm đề. Vui lòng mua thêm gói.");return status("Lỗi start_attempt: "+error.message)}
 const row=Array.isArray(data)?data[0]:data;currentAttemptId=row.attempt_id;currentProfile.credits=row.remaining_credits;renderAccount();
-currentQuestions=shuffle([...pool]).slice(0,count).map(q=>{const opts=q.options.map((text,idx)=>({text,originalIndex:idx}));return{...q,shuffledOptions:shuffle(opts),selected:null}});
+currentQuestions=shuffle([...pool]).slice(0,count).map(q=>{const opts=q.options.map((text,idx)=>({text,originalIndex:idx}));return{...q,shuffledOptions:shuffle(opts),selected:null,suspect:false}});
 submitted=false;quizStartTime=Date.now();homeBox.classList.add("hidden");resultBox.classList.add("hidden");quizBox.classList.remove("hidden");quizTitle.textContent=moduleLabel;quizInfo.textContent=getMode()==="all"?`Tất cả câu hỏi trong module • ${count} câu • Đã trừ 1 lượt`:`${catInfo} • ${count} câu • Đã trừ 1 lượt`;renderQuestions();renderProgress();remainingSeconds=count*SECONDS_PER_QUESTION;startTimer();window.scrollTo(0,0)}
 
 
 function getOptionImageHtml(q, originalIndex, optionLetterIndex){const key=q.optionImages&&q.optionImages[originalIndex];if(!key||!IMAGE_ASSETS[key])return"";return`<div class="option-image-wrap"><img class="option-image" src="${IMAGE_ASSETS[key]}" alt="Option ${String.fromCharCode(65+optionLetterIndex)} image"></div>`}
 function getCorrectAnswerMeta(q){const visibleIndex=q.shuffledOptions.findIndex(o=>o.originalIndex===q.answer);const letter=visibleIndex>=0?String.fromCharCode(65+visibleIndex):"?";const text=q.options?.[q.answer]??"";const imageKey=q.optionImages&&q.optionImages[q.answer]?q.optionImages[q.answer]:null;return{visibleIndex,letter,text,imageKey}}
-function renderQuestions(){questions.innerHTML=currentQuestions.map((q,qi)=>`<div class="question" id="q-${qi}"><div class="qtop"><span class="qnum">Question ${qi+1}</span><span class="tag">${esc(q.category)}</span>${q.level!==""?`<span class="tag">Level ${esc(q.level)}</span>`:""}</div><h3>${esc(q.q)}</h3>${q.shuffledOptions.map((o,oi)=>`<label class="option" data-q="${qi}" data-original="${o.originalIndex}"><input type="radio" name="q${qi}" value="${o.originalIndex}" onchange="chooseAnswer(${qi},${o.originalIndex})"><span class="letter">${String.fromCharCode(65+oi)}.</span><span class="option-body"><span>${esc(o.text)}</span>${getOptionImageHtml(q,o.originalIndex,oi)}</span></label>`).join("")}<div class="answer-hint" id="hint-${qi}"></div></div>`).join("")}
+function renderQuestions(){questions.innerHTML=currentQuestions.map((q,qi)=>`<div class="question ${q.suspect?"suspect":""}" id="q-${qi}"><div class="qtop"><span class="qnum">Question ${qi+1}</span><span class="tag">${esc(q.category)}</span>${q.level!==""?`<span class="tag">Level ${esc(q.level)}</span>`:""}<button type="button" class="review-btn ${q.suspect?"active":""}" onclick="toggleSuspect(${qi})">${q.suspect?"Đã nghi ngờ":"Nghi ngờ"}</button></div><h3>${esc(q.q)}</h3>${q.shuffledOptions.map((o,oi)=>`<label class="option" data-q="${qi}" data-original="${o.originalIndex}"><input type="radio" name="q${qi}" value="${o.originalIndex}" onchange="chooseAnswer(${qi},${o.originalIndex})"><span class="letter">${String.fromCharCode(65+oi)}.</span><span class="option-body"><span>${esc(o.text)}</span>${getOptionImageHtml(q,o.originalIndex,oi)}</span></label>`).join("")}${q.suspect?`<div class="review-note">⚠ Câu này đang được đánh dấu nghi ngờ / cần xem lại.</div>`:""}<div class="answer-hint" id="hint-${qi}"></div></div>`).join("")}
 function chooseAnswer(i,val){if(submitted)return;currentQuestions[i].selected=val;renderProgress()}
-function renderProgress(results=null){answeredCount.textContent=currentQuestions.filter(q=>q.selected!==null).length;totalCount.textContent=currentQuestions.length;progressGrid.innerHTML=currentQuestions.map((q,i)=>{let cls=results?(results[i]?"correct":"wrong"):(q.selected!==null?"answered":"");return`<div class="dot ${cls}" onclick="scrollToQuestion(${i})">${i+1}</div>`}).join("")}
+
+function toggleSuspect(i){
+  if(submitted)return;
+  currentQuestions[i].suspect=!currentQuestions[i].suspect;
+  renderQuestions();
+  renderProgress();
+  setTimeout(()=>document.getElementById(`q-${i}`)?.scrollIntoView({behavior:"instant",block:"start"}),0);
+}
+
+function renderProgress(results=null){answeredCount.textContent=currentQuestions.filter(q=>q.selected!==null).length;totalCount.textContent=currentQuestions.length;progressGrid.innerHTML=currentQuestions.map((q,i)=>{let cls=results?(results[i]?"correct":"wrong"):(q.selected!==null?"answered":"");if(!results&&q.suspect)cls=(cls+" suspect").trim();return`<div class="dot ${cls}" title="${q.suspect?"Nghi ngờ / cần xem lại":""}" onclick="scrollToQuestion(${i})">${i+1}</div>`}).join("")}
 function scrollToQuestion(i){document.getElementById(`q-${i}`)?.scrollIntoView({behavior:"smooth",block:"start"})}
 function startTimer(){stopTimer();updateTimer();timerInterval=setInterval(()=>{remainingSeconds--;updateTimer();if(remainingSeconds<=0)submitQuiz(true)},1000)}
 function stopTimer(){if(timerInterval)clearInterval(timerInterval);timerInterval=null}
