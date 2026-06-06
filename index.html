@@ -102,6 +102,46 @@ body.exam-secure .watermark-layer { display: block; }
   line-height: 1.45;
 }
 
+
+/* FONT FIX - Vietnamese friendly */
+:root{
+  --app-font: Arial, "Helvetica Neue", Helvetica, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+html, body, button, input, select, textarea {
+  font-family: var(--app-font) !important;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+label.title,
+.title,
+.notice,
+button,
+input,
+select,
+small,
+.stat small {
+  letter-spacing: 0 !important;
+}
+label.title,
+.title {
+  text-transform: none !important;
+  font-weight: 700 !important;
+}
+button {
+  text-transform: none !important;
+  font-weight: 700 !important;
+}
+.module-card strong,
+h1, h2, h3 {
+  letter-spacing: 0 !important;
+}
+
+
+/* CHANGE PASSWORD BUTTON FIX */
+.btnrow button {
+  white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -138,7 +178,7 @@ body.exam-secure .watermark-layer { display: block; }
 <div id="accountBox" class="hidden">
 <p class="small">Đang đăng nhập:</p><strong id="userEmail"></strong>
 <div class="statgrid"><div class="stat"><small>Lượt còn lại</small><strong id="creditsText">0</strong></div><div class="stat"><small>Tổng câu</small><strong>851</strong></div></div>
-<div class="btnrow"><button class="green full" onclick="buyPackagePayOS()">Mua 50k / 10 lượt</button><button class="dark" onclick="signOut()">Đăng xuất</button><button class="red" onclick="refreshCredits()">Refresh</button></div>
+<div class="btnrow"><button class="green full" onclick="buyPackagePayOS()">Mua 50k / 10 lượt</button><button class="dark" onclick="changePasswordLoggedIn()">Đổi mật khẩu</button><button class="dark" onclick="signOut()">Đăng xuất</button><button class="red" onclick="refreshCredits()">Refresh</button></div>
 <div class="notice">Nút mua gói sẽ tạo link/QR thanh toán payOS. Thanh toán thành công sẽ tự cộng 10 lượt qua webhook.</div>
 <div class="security-badge">🔒 V6 Security: payOS thật, chống copy, chặn chuột phải/phím tắt, watermark theo email và log hành vi nghi ngờ.</div>
 </div>
@@ -321,6 +361,34 @@ async function handlePasswordRecoveryIfNeeded(){
   currentUser=null;
   currentProfile=null;
   history.replaceState(null, "", window.location.origin + window.location.pathname);
+  renderAccount();
+  status("Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.", "ok");
+}
+
+
+async function changePasswordLoggedIn(){
+  if(!currentUser){
+    return status("Vui lòng đăng nhập trước khi đổi mật khẩu.", "warn");
+  }
+
+  const newPassword = prompt("Nhập mật khẩu mới, tối thiểu 6 ký tự:");
+  if(!newPassword || newPassword.length < 6){
+    return status("Mật khẩu mới phải tối thiểu 6 ký tự.", "err");
+  }
+
+  const confirmPassword = prompt("Nhập lại mật khẩu mới:");
+  if(newPassword !== confirmPassword){
+    return status("Hai mật khẩu không khớp. Vui lòng thử lại.", "err");
+  }
+
+  const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+  if(error){
+    return status("Lỗi đổi mật khẩu: " + error.message, "err");
+  }
+
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
   renderAccount();
   status("Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.", "ok");
 }
