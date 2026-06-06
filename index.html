@@ -289,6 +289,77 @@ async function handlePasswordRecoveryIfNeeded(){
   status("Đã cập nhật mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.", "ok");
 }
 
+
+async function forcePasswordChangeFlow(flowType){
+  const title = flowType === "signup"
+    ? "Email đã xác nhận. Bạn cần đổi mật khẩu lần đầu trước khi sử dụng tài khoản."
+    : "Bạn đang đặt lại mật khẩu. Vui lòng nhập mật khẩu mới.";
+  status(title, "warn");
+
+  await new Promise(resolve => setTimeout(resolve, 900));
+
+  let sessionOk = false;
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    sessionOk = !!data?.session;
+  } catch (_) {}
+
+  if(!sessionOk){
+    status("Link xác thực đã mở nhưng chưa tạo được phiên đăng nhập. Vui lòng bấm lại link trong email hoặc gửi lại email xác nhận.", "err");
+    return;
+  }
+
+  const newPassword = prompt("Nhập mật khẩu mới, tối thiểu 6 ký tự:");
+  if(!newPassword || newPassword.length < 6){
+    await supabaseClient.auth.signOut();
+    history.replaceState(null, "", window.location.origin + window.location.pathname);
+    status("Bạn chưa đổi mật khẩu. Vui lòng bấm lại link trong email để thử lại.", "err");
+    return;
+  }
+
+  const confirmPassword = prompt("Nhập lại mật khẩu mới:");
+  if(newPassword !== confirmPassword){
+    await supabaseClient.auth.signOut();
+    history.replaceState(null, "", window.location.origin + window.location.pathname);
+    status("Hai mật khẩu không khớp. Vui lòng bấm lại link trong email để thử lại.", "err");
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+  if(error){
+    await supabaseClient.auth.signOut();
+    history.replaceState(null, "", window.location.origin + window.location.pathname);
+    status("Lỗi cập nhật mật khẩu: " + error.message, "err");
+    return;
+  }
+
+  await supabaseClient.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  history.replaceState(null, "", window.location.origin + window.location.pathname);
+  renderAccount();
+  status("Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.", "ok");
+}
+
+async function handleAuthRedirectIfNeeded(){
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const type = hash.get("type") || query.get("type");
+
+  const hasAccessToken = !!hash.get("access_token");
+  const hasRefreshToken = !!hash.get("refresh_token");
+
+  if(type === "recovery"){
+    await forcePasswordChangeFlow("recovery");
+    return;
+  }
+
+  if(type === "signup" || type === "email_change" || (hasAccessToken && hasRefreshToken)){
+    await forcePasswordChangeFlow("signup");
+    return;
+  }
+}
+
 async function signOut(){
   await supabaseClient.auth.signOut();
   currentUser=null; currentProfile=null; stopTimer();
@@ -392,7 +463,7 @@ window.addEventListener("load",async()=>{
     status("Bạn đã hủy thanh toán payOS. Chưa có lượt nào được cộng.", "warn");
   }
   await loadSession();
-  await handlePasswordRecoveryIfNeeded();
+  await handleAuthRedirectIfNeeded();
 })
 
 /* =========================
