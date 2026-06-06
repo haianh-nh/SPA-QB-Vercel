@@ -34,3 +34,9 @@ payOS webhook is running
 Lưu ý:
 - Chạy schema_v6.sql trong Supabase nếu chưa chạy.
 - Không đưa SUPABASE_SERVICE_ROLE_KEY, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY vào index.html.
+
+
+FIX:
+- Sửa lỗi Vercel build: "Function Runtimes must have a valid version".
+- Đã bỏ cấu hình runtime sai trong vercel.json.
+- Vercel tự nhận các file trong thư mục api/ là Serverless Functions.
