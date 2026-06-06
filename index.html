@@ -127,6 +127,7 @@ body.exam-secure .watermark-layer { display: block; }
 </div>
 <label class="title">Email</label><input id="emailInput" type="email" placeholder="example@gmail.com">
 <label class="title">Password</label><input id="passwordInput" type="password" placeholder="Tối thiểu 6 ký tự">
+<label id="passwordConfirmLabel" class="title hidden">Nhập lại password</label><input id="passwordConfirmInput" class="hidden" type="password" placeholder="Nhập lại mật khẩu">
 <div class="btnrow">
 <button id="mainAuthBtn" class="full" onclick="handleAuth()">Đăng nhập</button>
 <button class="light" onclick="resetPassword()">Quên mật khẩu</button>
@@ -191,36 +192,37 @@ function setAuthMode(mode){
   if(document.getElementById("loginTabBtn")){
     loginTabBtn.classList.toggle("active",mode==="login");
     signupTabBtn.classList.toggle("active",mode==="signup");
-    mainAuthBtn.textContent=mode==="login"?"Đăng nhập":"Đăng ký tài khoản";
-    authHint.textContent=mode==="login"
-      ?"Nếu chưa có tài khoản, chuyển sang tab Đăng ký trước."
-      :"Sau khi đăng ký, nếu Supabase đang bật Confirm email thì bạn cần vào Gmail xác nhận rồi mới đăng nhập được.";
+    mainAuthBtn.textContent=mode==="login"?"Đăng nhập":"Đăng ký";
+  }
+  if(document.getElementById("passwordConfirmInput")){
+    const isSignup = mode === "signup";
+    passwordConfirmInput.classList.toggle("hidden", !isSignup);
+    passwordConfirmLabel.classList.toggle("hidden", !isSignup);
+    passwordConfirmInput.value = "";
   }
 }
 async function handleAuth(){authMode==="login"?await signIn():await signUp()}
 
 async function signUp(){
   clearStatus();
-  const email=emailInput.value.trim().toLowerCase(), password=passwordInput.value;
-  if(!email||!password)return status("Vui lòng nhập email và password.","warn");
-  if(password.length<6)return status("Password phải tối thiểu 6 ký tự.","warn");
-  if(document.getElementById("mainAuthBtn")){mainAuthBtn.disabled=true;mainAuthBtn.textContent="Đang đăng ký...";}
-  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin,data:{must_change_password:true}}});
-  if(document.getElementById("mainAuthBtn")){mainAuthBtn.disabled=false;mainAuthBtn.textContent="Đăng ký tài khoản";}
-  if(error){
-    const msg=error.message||String(error);
-    if(msg.toLowerCase().includes("already")) return status("Email này có thể đã được đăng ký. Hãy chuyển sang Đăng nhập hoặc dùng Quên mật khẩu.","err");
-    return status("Lỗi đăng ký: "+msg,"err");
-  }
-  if(data.session){
-    status("Đăng ký thành công và đã tự đăng nhập.","ok");
-    await loadSession();
-  }else{
-    status("Đăng ký thành công. Supabase đang yêu cầu xác nhận email. Hãy vào Gmail bấm link xác nhận rồi quay lại Đăng nhập. Nếu muốn test nhanh, tắt Confirm email trong Supabase > Authentication > Providers > Email.","ok");
-    setAuthMode("login");
-  }
-}
+  const email=emailInput.value.trim().toLowerCase();
+  const password=passwordInput.value;
+  const password2=document.getElementById("passwordConfirmInput")?.value || "";
 
+  if(!email||!password||!password2)return status("Vui lòng nhập email, password và nhập lại password.","warn");
+  if(password.length<6)return status("Password phải tối thiểu 6 ký tự.","warn");
+  if(password!==password2)return status("Password nhập lại không khớp.","err");
+
+  if(document.getElementById("mainAuthBtn")){mainAuthBtn.disabled=true;mainAuthBtn.textContent="Đang đăng ký..."}
+  const {data,error}=await supabaseClient.auth.signUp({
+    email,
+    password,
+    options:{emailRedirectTo:window.location.origin}
+  });
+  if(document.getElementById("mainAuthBtn")){mainAuthBtn.disabled=false;mainAuthBtn.textContent="Đăng ký"}
+  if(error)return status("Lỗi đăng ký: "+error.message,"err");
+  status("Đã tạo tài khoản. Vui lòng kiểm tra email để xác nhận tài khoản, sau đó đăng nhập bằng password vừa tạo.","ok");
+}
 async function signIn(){
   clearStatus();
   const email=emailInput.value.trim().toLowerCase(), password=passwordInput.value;
@@ -254,6 +256,26 @@ async function resetPassword(){
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async function handlePasswordRecoveryIfNeeded(){
   const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
   const query = new URLSearchParams(window.location.search);
@@ -261,72 +283,34 @@ async function handlePasswordRecoveryIfNeeded(){
 
   if(type !== "recovery") return;
 
-  status("Đang ở chế độ đặt lại mật khẩu. Vui lòng nhập mật khẩu mới.", "warn");
+  status("Bạn đang đặt lại mật khẩu. Vui lòng nhập mật khẩu mới.", "warn");
 
-  // Supabase JS v2 thường tự đọc access_token trong URL hash và tạo session.
-  // Đợi một chút để session được nhận trước khi update password.
   await new Promise(resolve => setTimeout(resolve, 700));
+
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if(!sessionData?.session){
+    status("Link đặt lại mật khẩu chưa tạo được phiên xác thực. Vui lòng bấm lại link trong email mới nhất.", "err");
+    return;
+  }
 
   const newPassword = prompt("Nhập mật khẩu mới, tối thiểu 6 ký tự:");
   if(!newPassword || newPassword.length < 6){
-    status("Mật khẩu mới phải tối thiểu 6 ký tự. Bạn có thể bấm lại link reset trong email để thử lại.", "err");
+    await supabaseClient.auth.signOut();
+    history.replaceState(null, "", window.location.origin + window.location.pathname);
+    status("Mật khẩu mới phải tối thiểu 6 ký tự. Vui lòng bấm lại link reset trong email để thử lại.", "err");
     return;
   }
 
   const confirmPassword = prompt("Nhập lại mật khẩu mới:");
   if(newPassword !== confirmPassword){
+    await supabaseClient.auth.signOut();
+    history.replaceState(null, "", window.location.origin + window.location.pathname);
     status("Hai mật khẩu không khớp. Vui lòng bấm lại link reset trong email để thử lại.", "err");
     return;
   }
 
   const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
   if(error){
-    status("Lỗi cập nhật mật khẩu: " + error.message, "err");
-    return;
-  }
-
-  history.replaceState(null, "", window.location.origin + window.location.pathname);
-  status("Đã cập nhật mật khẩu thành công. Bạn có thể đăng nhập bằng mật khẩu mới.", "ok");
-}
-
-
-async function forcePasswordChangeFlow(flowType){
-  const title = flowType === "signup"
-    ? "Email đã xác nhận. Bạn cần đổi mật khẩu lần đầu trước khi sử dụng tài khoản."
-    : "Bạn đang đặt lại mật khẩu. Vui lòng nhập mật khẩu mới.";
-  status(title, "warn");
-
-  await new Promise(resolve => setTimeout(resolve, 900));
-
-  let sessionOk = false;
-  try {
-    const { data } = await supabaseClient.auth.getSession();
-    sessionOk = !!data?.session;
-  } catch (_) {}
-
-  if(!sessionOk){
-    status("Link xác thực đã mở nhưng chưa tạo được phiên đăng nhập. Vui lòng bấm lại link trong email hoặc gửi lại email xác nhận.", "err");
-    return;
-  }
-
-  const newPassword = prompt("Nhập mật khẩu mới, tối thiểu 6 ký tự:");
-  if(!newPassword || newPassword.length < 6){
-    await supabaseClient.auth.signOut();
-    history.replaceState(null, "", window.location.origin + window.location.pathname);
-    status("Bạn chưa đổi mật khẩu. Vui lòng bấm lại link trong email để thử lại.", "err");
-    return;
-  }
-
-  const confirmPassword = prompt("Nhập lại mật khẩu mới:");
-  if(newPassword !== confirmPassword){
-    await supabaseClient.auth.signOut();
-    history.replaceState(null, "", window.location.origin + window.location.pathname);
-    status("Hai mật khẩu không khớp. Vui lòng bấm lại link trong email để thử lại.", "err");
-    return;
-  }
-
-  const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-  if(error){
     await supabaseClient.auth.signOut();
     history.replaceState(null, "", window.location.origin + window.location.pathname);
     status("Lỗi cập nhật mật khẩu: " + error.message, "err");
@@ -334,114 +318,12 @@ async function forcePasswordChangeFlow(flowType){
   }
 
   await supabaseClient.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
+  currentUser=null;
+  currentProfile=null;
   history.replaceState(null, "", window.location.origin + window.location.pathname);
   renderAccount();
   status("Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.", "ok");
 }
-
-async function handleAuthRedirectIfNeeded(){
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const query = new URLSearchParams(window.location.search);
-  const type = hash.get("type") || query.get("type");
-
-  const hasAccessToken = !!hash.get("access_token");
-  const hasRefreshToken = !!hash.get("refresh_token");
-
-  if(type === "recovery"){
-    await forcePasswordChangeFlow("recovery");
-    return;
-  }
-
-  if(type === "signup" || type === "email_change" || (hasAccessToken && hasRefreshToken)){
-    await forcePasswordChangeFlow("signup");
-    return;
-  }
-}
-
-
-async function forcePasswordChangeIfRequired(reason){
-  await new Promise(resolve => setTimeout(resolve, 700));
-
-  const { data: sessionData } = await supabaseClient.auth.getSession();
-  const sessionUser = sessionData?.session?.user;
-  if(!sessionUser) return false;
-
-  const mustChange = sessionUser?.user_metadata?.must_change_password === true || reason === "recovery";
-
-  if(!mustChange) return false;
-
-  const msg = reason === "recovery"
-    ? "Bạn đang đặt lại mật khẩu. Vui lòng đổi mật khẩu mới."
-    : "Email đã xác nhận. Bạn cần đổi mật khẩu lần đầu trước khi sử dụng tài khoản.";
-  status(msg, "warn");
-
-  const newPassword = prompt("Nhập mật khẩu mới, tối thiểu 6 ký tự:");
-  if(!newPassword || newPassword.length < 6){
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    history.replaceState(null, "", window.location.origin + window.location.pathname);
-    renderAccount();
-    status("Bạn chưa đổi mật khẩu. Vui lòng đăng nhập hoặc bấm lại link trong email để thử lại.", "err");
-    return true;
-  }
-
-  const confirmPassword = prompt("Nhập lại mật khẩu mới:");
-  if(newPassword !== confirmPassword){
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    history.replaceState(null, "", window.location.origin + window.location.pathname);
-    renderAccount();
-    status("Hai mật khẩu không khớp. Vui lòng đăng nhập hoặc bấm lại link trong email để thử lại.", "err");
-    return true;
-  }
-
-  const { error } = await supabaseClient.auth.updateUser({
-    password: newPassword,
-    data: { must_change_password: false }
-  });
-
-  if(error){
-    await supabaseClient.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    history.replaceState(null, "", window.location.origin + window.location.pathname);
-    renderAccount();
-    status("Lỗi cập nhật mật khẩu: " + error.message, "err");
-    return true;
-  }
-
-  await supabaseClient.auth.signOut();
-  currentUser = null;
-  currentProfile = null;
-  history.replaceState(null, "", window.location.origin + window.location.pathname);
-  renderAccount();
-  status("Đã đổi mật khẩu thành công. Vui lòng đăng nhập lại bằng mật khẩu mới.", "ok");
-  return true;
-}
-
-async function handleAuthRedirectIfNeeded(){
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const query = new URLSearchParams(window.location.search);
-  const type = hash.get("type") || query.get("type");
-
-  if(type === "recovery"){
-    await forcePasswordChangeIfRequired("recovery");
-    return;
-  }
-
-  await forcePasswordChangeIfRequired("signup");
-}
-
-
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if(event === "SIGNED_IN" && session?.user?.user_metadata?.must_change_password === true){
-    await forcePasswordChangeIfRequired("signup");
-  }
-});
 
 async function signOut(){
   await supabaseClient.auth.signOut();
@@ -546,7 +428,8 @@ window.addEventListener("load",async()=>{
     status("Bạn đã hủy thanh toán payOS. Chưa có lượt nào được cộng.", "warn");
   }
   await loadSession();
-  await handleAuthRedirectIfNeeded();
+  await handlePasswordRecoveryIfNeeded();
+  
   
 })
 
