@@ -40,3 +40,12 @@ FIX:
 - Sửa lỗi Vercel build: "Function Runtimes must have a valid version".
 - Đã bỏ cấu hình runtime sai trong vercel.json.
 - Vercel tự nhận các file trong thư mục api/ là Serverless Functions.
+
+
+FIX DEFAULT IMPORT:
+- Sửa lỗi Serverless Function crashed khi mở /api/payos-webhook.
+- Đổi payOS SDK sang:
+  import PayOS from "@payos/node";
+  new PayOS(PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY);
+  payOS.createPaymentLink(...)
+  payOS.verifyPaymentWebhookData(...)

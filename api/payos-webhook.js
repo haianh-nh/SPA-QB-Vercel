@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { PayOS } from "@payos/node";
+import PayOS from "@payos/node";
 
 function requiredEnv(name) {
   const value = process.env[name];
@@ -40,15 +40,11 @@ export default async function handler(req, res) {
       return sendText(res, 200, "OK");
     }
 
-    const payOS = new PayOS({
-      clientId: PAYOS_CLIENT_ID,
-      apiKey: PAYOS_API_KEY,
-      checksumKey: PAYOS_CHECKSUM_KEY
-    });
+    const payOS = new PayOS(PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY);
 
     let webhookData;
     try {
-      webhookData = payOS.webhooks.verify(body);
+      webhookData = payOS.verifyPaymentWebhookData(body);
     } catch (verifyError) {
       console.warn("payOS webhook verify ignored:", verifyError);
       return sendText(res, 200, "OK");

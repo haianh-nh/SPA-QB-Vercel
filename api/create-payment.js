@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { PayOS } from "@payos/node";
+import PayOS from "@payos/node";
 
 function requiredEnv(name) {
   const value = process.env[name];
@@ -45,11 +45,7 @@ export default async function handler(req, res) {
     const creditsAdded = 10;
     const orderCode = Number(String(Date.now()).slice(-10));
 
-    const payOS = new PayOS({
-      clientId: PAYOS_CLIENT_ID,
-      apiKey: PAYOS_API_KEY,
-      checksumKey: PAYOS_CHECKSUM_KEY
-    });
+    const payOS = new PayOS(PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY);
 
     const paymentData = {
       orderCode,
@@ -62,7 +58,7 @@ export default async function handler(req, res) {
       returnUrl: `${SITE_URL}/?payment=success&orderCode=${orderCode}`
     };
 
-    const paymentLink = await payOS.paymentRequests.create(paymentData);
+    const paymentLink = await payOS.createPaymentLink(paymentData);
 
     const { error: insertError } = await supabaseAdmin.from("payment_orders").insert({
       user_id: user.id,
